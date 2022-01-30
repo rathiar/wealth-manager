@@ -9,6 +9,8 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/arathi/wealth-manager/internal/config"
+	"github.com/arathi/wealth-manager/internal/handlers"
+	"github.com/arathi/wealth-manager/internal/render"
 )
 
 var app config.AppConfig
@@ -32,9 +34,9 @@ func main() {
 	}
 }
 
-func run() {
+func run() error {
 	// Read Application Level Flags
-	productionEnv := flag.Bool("production", true, "Application is in production")
+	productionEnv := flag.Bool("production", false, "Application is in production")
 
 	flag.Parse()
 
@@ -52,5 +54,19 @@ func run() {
 	session.Cookie.Secure = false
 
 	app.Session = session
+
+	// Initialize Handler
+	handlers.CreateHandlerRepo(&app)
+	// Initialize Rendered
+	render.InitRenderer(&app)
+	// Build template cache
+	tCache, err := render.CacheTemplates()
+	if err != nil {
+		log.Fatal("Can't create template cache")
+		return err
+	}
+	app.TemplateCache = tCache
+
+	return nil
 
 }
