@@ -10,6 +10,7 @@ import (
 
 	"github.com/arathi/wealth-manager/internal/config"
 	"github.com/arathi/wealth-manager/internal/models"
+	"github.com/gorilla/csrf"
 )
 
 var templatePath = "./templates"
@@ -22,6 +23,7 @@ func InitRenderer(a *config.AppConfig) {
 }
 
 func addDefaultData(td *models.Data, r *http.Request) *models.Data {
+	td.CSRFToken = csrf.Token(r)
 	return td
 }
 

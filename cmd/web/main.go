@@ -9,6 +9,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/arathi/wealth-manager/internal/config"
+	"github.com/arathi/wealth-manager/internal/forms"
 	"github.com/arathi/wealth-manager/internal/handlers"
 	"github.com/arathi/wealth-manager/internal/render"
 )
@@ -16,6 +17,7 @@ import (
 var app config.AppConfig
 
 const portNumber = ":8080"
+const tokenLength = 32
 
 func main() {
 	log.Println("Starting wealth manager application...")
@@ -27,7 +29,6 @@ func main() {
 	}
 
 	app.InfoLog.Printf("Starting application on port %s", portNumber)
-
 	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
@@ -47,13 +48,13 @@ func run() error {
 	app.ErrorLog = log.New(os.Stdout, "ERROR\t", log.Default().Flags())
 
 	// Session Configuration
-	session := scs.New()
-	session.Lifetime = 24 * time.Hour
-	session.Cookie.Persist = true
-	session.Cookie.SameSite = http.SameSiteLaxMode
-	session.Cookie.Secure = false
+	SessionManager := scs.New()
+	SessionManager.Lifetime = 24 * time.Hour
+	SessionManager.Cookie.Persist = true
+	SessionManager.Cookie.SameSite = http.SameSiteLaxMode
+	SessionManager.Cookie.Secure = false
 
-	app.Session = session
+	app.SessionManager = SessionManager
 
 	// Initialize Handler
 	handlers.CreateHandlerRepo(&app)
@@ -66,6 +67,9 @@ func run() error {
 		return err
 	}
 	app.TemplateCache = tCache
+
+	// Initialize Validator
+	forms.Init(&app)
 
 	return nil
 

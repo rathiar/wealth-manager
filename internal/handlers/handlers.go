@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/arathi/wealth-manager/internal/config"
@@ -32,8 +33,46 @@ func (m *Repository) ShowSignUp(rw http.ResponseWriter, r *http.Request) {
 	render.Template("sign-up.page.tmpl", rw, r, &models.Data{})
 }
 
+// ShowLogin is handler for showing login page
 func (m *Repository) ShowLogin(rw http.ResponseWriter, r *http.Request) {
 	render.Template("login.page.tmpl", rw, r, &models.Data{
-		Form: forms.Init(nil),
+		Form: forms.New(nil),
 	})
+}
+
+// Login is handler for logging in user
+func (m *Repository) Login(rw http.ResponseWriter, r *http.Request) {
+	if !renewToken(rw, r) {
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		m.App.ErrorLog.Println(err)
+	}
+
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	form := forms.New(r.PostForm)
+	form.ValidateField("required", "email", email, "email is required")
+	form.ValidateField("email", "email", email, "email format not valid")
+	form.ValidateField("required", "password", password, "password is required")
+	log.Println(form.Errors)
+	if !form.Valid() {
+		m.App.ErrorLog.Println("There are validation errors. Rendering login page again")
+		render.Template("login.page.tmpl", rw, r, &models.Data{
+			Form: form,
+		})
+		return
+	}
+}
+
+// renewToken renews token to prevent session fixation
+func renewToken(rw http.ResponseWriter, r *http.Request) bool {
+	err := Repo.App.SessionManager.RenewToken(r.Context())
+	if err != nil {
+		http.Error(rw, "Error renewing token", http.StatusInternalServerError)
+		return false
+	}
+	return true
 }
