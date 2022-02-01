@@ -79,6 +79,16 @@ func (m *Repository) Login(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Logout logs a user out
+func (m *Repository) Logout(rw http.ResponseWriter, r *http.Request) {
+	_ = m.App.SessionManager.Destroy(r.Context())
+	if !renewToken(rw, r) {
+		return
+	}
+	m.App.SessionManager.Put(r.Context(), "SuccessMsg", "Logged out successfully")
+	http.Redirect(rw, r, "/login", http.StatusSeeOther)
+}
+
 // renewToken renews token to prevent session fixation
 func renewToken(rw http.ResponseWriter, r *http.Request) bool {
 	err := Repo.App.SessionManager.RenewToken(r.Context())

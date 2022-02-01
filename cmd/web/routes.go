@@ -14,7 +14,9 @@ import (
 
 func routes(app *config.AppConfig) http.Handler {
 	mux := chi.NewRouter()
-	mux.Use(middleware.Logger)
+	if !app.ProductionEnv {
+		mux.Use(middleware.Logger)
+	}
 	mux.Use(middleware.Recoverer)
 	mux.Use(CSRFHandler)
 	// SessionManager.LoadAndSave automatically loads and saves session data for the current request,
@@ -29,6 +31,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/sign-up", handlers.Repo.ShowSignUp)
 	mux.Get("/login", handlers.Repo.ShowLogin)
 	mux.Post("/login", handlers.Repo.Login)
+	mux.Get("/logout", handlers.Repo.Logout)
 
 	return mux
 }
