@@ -12,6 +12,19 @@
             integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     </head>
     <body>
+        <div aria-live="polite" aria-atomic="true" class="bg-dark position-relative bd-example-toasts">
+            <div class="toast-container position-absolute top-0 end-0" id="toastContainer" style="z-index: 11">
+                <div class="toast" id="mainToast">
+                    <div class="toast-header" id="toastHeader">
+                        <strong class="me-auto" id="toastHeaderText"></strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" id="toastBody">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- navbar -->
         <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(132, 204, 132);">
         <div class="container-fluid">
@@ -62,6 +75,33 @@
         {{block "js" .}}
 
         {{end}}
+
+        <script>
+            function toast(msg, msgType) {
+                var mainToast = document.getElementById('mainToast');
+                mainToast.classList.add("text-white");
+                if (msgType == "Success") {
+                    mainToast.classList.add("bg-success");
+                } else {
+                    mainToast.classList.add("bg-danger");
+                }
+                var toastBody = document.getElementById('toastBody');
+                toastBody.innerHTML = msg;
+                var toastHeaderText = document.getElementById('toastHeaderText');
+                toastHeaderText.innerHTML = msgType;
+                var toast = new bootstrap.Toast(mainToast)
+                toast.show()
+            }
+            
+            {{with .ErrorMsg}}
+                toast("{{.}}", "Error")
+            {{end}}
+
+            {{with .SuccessMsg}}
+                toast("{{.}}", "Success")
+            {{end}}
+
+        </script>
     </body>
 
     </html>

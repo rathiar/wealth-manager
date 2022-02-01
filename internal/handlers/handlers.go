@@ -65,6 +65,18 @@ func (m *Repository) Login(rw http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	// TODO: temporary logic for authentication till DB is integrated
+	if email == "test@test.com" && password == "test" {
+		m.App.SessionManager.Put(r.Context(), "user_id", 100)
+		m.App.SessionManager.Put(r.Context(), "SuccessMsg", "Logged in successfully")
+		http.Redirect(rw, r, "/", http.StatusSeeOther)
+	} else {
+		// Authentication Failed
+		m.App.SessionManager.Put(r.Context(), "ErrorMsg", "Invalid credentials")
+		http.Redirect(rw, r, "/login", http.StatusSeeOther)
+		return
+	}
 }
 
 // renewToken renews token to prevent session fixation

@@ -24,6 +24,11 @@ func InitRenderer(a *config.AppConfig) {
 
 func addDefaultData(td *models.Data, r *http.Request) *models.Data {
 	td.CSRFToken = csrf.Token(r)
+	if app.SessionManager.Exists(r.Context(), "user_id") {
+		td.Authenticated = true
+	}
+	td.ErrorMsg = app.SessionManager.PopString(r.Context(), "ErrorMsg")
+	td.SuccessMsg = app.SessionManager.PopString(r.Context(), "SuccessMsg")
 	return td
 }
 
@@ -52,8 +57,6 @@ func Template(tmpl string, rw http.ResponseWriter, r *http.Request, data *models
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	app.InfoLog.Printf("Buffer size: %v", buf.Len())
 
 	_, err = buf.WriteTo(rw)
 	if err != nil {
