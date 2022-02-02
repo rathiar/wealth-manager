@@ -9,3 +9,5 @@ Personal Wealth Manager application built using go
 * [gorilla csrf to prevent CSRF attacks](https://github.com/gorilla/csrf)
 * [Validator](https://github.com/go-playground/validator)
 
+# Database migration tool
+* [goose](https://github.com/pressly/goose)
